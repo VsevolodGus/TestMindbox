@@ -8,6 +8,9 @@ public class Triangle : IShape
 
     public Triangle(double a, double b, double c)
     {
+        if (a <= 0 || b <= 0 || c <= 0)
+            throw new ArgumentException("Неправильно заданы стороны для треугольника");
+
         if (a + b <= c || a + c <= b || c + b <= a)
             throw new ArgumentException("Стороны треугольника заданы неверно");
 

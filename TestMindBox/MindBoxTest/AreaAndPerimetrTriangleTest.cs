@@ -40,16 +40,22 @@ public class AreaAndPerimetrTriangleTest
     }
 
     [Fact]
-    public void Triangle_ArgumentException_1()
+    public void Triangle_NotExistsTriangle_ArgumentException()
     {
         Assert.Throws<ArgumentException>(() => new Triangle(1, 2, 3));
     }
 
 
     [Fact]
-    public void Triangle_ArgumentException_2()
+    public void Triangle_SideValueZero_ArgumentException()
     {
         Assert.Throws<ArgumentException>(() => new Triangle(0, 0, 0));
+    }
+
+    [Fact]
+    public void Triangle_WithNegativeSide_ArgumentException()
+    {
+        Assert.Throws<ArgumentException>(() => new Triangle(10, 6, -8));
     }
 
 
