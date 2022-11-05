@@ -2,7 +2,15 @@
 
 public class Circle : IShape
 {
-    public double Radius { get; init; }
+    public double Radius { get; }
+
+    public Circle(double radius)
+    {
+        if (radius < 0)
+            throw new ArgumentException("Задали неверно радиус");
+
+        Radius = radius;
+    }
 
     public double GetArea()
     {
