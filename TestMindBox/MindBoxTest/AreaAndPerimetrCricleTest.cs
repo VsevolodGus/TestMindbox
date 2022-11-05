@@ -5,8 +5,8 @@ namespace MindBoxTest;
 
 public class AreaAndPerimetrCricleTest
 {
-    private double GetPerimetr(double radius) => 2 * radius * Math.PI;
-    private double GetArea(double radius) => Math.Pow(radius, 2) * Math.PI;
+    private static double GetPerimetr(double radius) => 2 * radius * Math.PI;
+    private static double GetArea(double radius) => Math.Pow(radius, 2) * Math.PI;
     [Fact]
     public void Circle_Radius3()
     {
