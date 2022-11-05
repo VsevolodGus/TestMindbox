@@ -8,7 +8,7 @@ public class Triangle : IShape
 
     public Triangle(double a, double b, double c)
     {
-        if (a + b < c || a + c < b || c + b < a)
+        if (a + b <= c || a + c <= b || c + b <= a)
             throw new ArgumentException("Стороны треугольника заданы неверно");
 
         A = a;
