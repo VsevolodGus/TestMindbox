@@ -1,4 +1,6 @@
-﻿namespace TestMindBox.linq;
+﻿using System.Collections;
+
+namespace TestMindBox.linq;
 
 public static class TakeLast
 {
@@ -7,7 +9,7 @@ public static class TakeLast
     
 
     public static IEnumerable<T> SkipLastHelpers<T>(this IEnumerable<T> source, int skipLast)
-                    => source.GetByFuncIndex(x => x > (source.Count() - skipLast));
+                    => source.GetByFuncIndex(x => x <= (source.Count() - skipLast));
     
 
     public static IEnumerable<T> TakeHelpers<T>(this IEnumerable<T> source, int take)
@@ -55,4 +57,64 @@ public static class TakeLast
             yield return quque.Dequeue();
     }
 
+    public static IEnumerable<T> MyTake<T>(this IEnumerable<T> source, int take)
+    {
+        var e = source.GetEnumerator();
+
+        if (!e.MoveNext())
+            yield break;
+
+        var quqeue = new Queue<T>();
+        quqeue.Enqueue(e.Current);
+        int count = 0;
+        while (e.MoveNext() && count <= take)
+        {
+            quqeue.Enqueue(e.Current);
+            count++;
+        }
+
+        for (int i = 0; i < take; i++)
+            yield return quqeue.Dequeue();
+    }
+
+    public static IEnumerable<T> MySkip<T>(this IEnumerable<T> source, int skip)
+    {
+        var e = source.GetEnumerator();
+
+        if (!e.MoveNext())
+            yield break;
+
+        var quqeue = new Queue<T>();
+        int count = 1;
+        while (e.MoveNext())
+        {
+            if (count++ >= skip)
+                quqeue.Enqueue(e.Current);
+        }
+
+        for (int i = 0; i < count-skip; i++)
+            yield return quqeue.Dequeue();
+    }
+
+
+    public static IEnumerable<T> MySkipLast<T>(this IEnumerable<T> source, int skipLast)
+    {
+        var e = source.GetEnumerator();
+
+        if (!e.MoveNext())
+            yield break;
+
+        var quqeue = new Queue<T>();
+        quqeue.Enqueue(e.Current);
+
+        int count = 1;
+        while (e.MoveNext())
+        {
+            quqeue.Enqueue(e.Current);
+            count++;
+        }
+        
+        for (int i = 0; i < count - skipLast; i++)
+            yield return quqeue.Dequeue();
+    }
 }
