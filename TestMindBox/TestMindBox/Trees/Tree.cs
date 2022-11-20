@@ -19,9 +19,8 @@ public class Node
 
 public static class ExtentionsNode
 {
-    public static List<int> IterateTreeInWidth(this Node n)
+    public static List<int> IterateTreeInWidth(this Node root)
     {
-        var root = new Node(n);
         var result = new List<int>
         {
             root.ID
@@ -41,9 +40,8 @@ public static class ExtentionsNode
     }
 
 
-    public static List<int> IterateTreeInDepthRightToLeft(this Node n)
+    public static List<int> IterateTreeInDepthRightToLeft(this Node root)
     {
-        var root = new Node(n);
         var result = new List<int>();
 
         var stack = new Stack<Node>();
