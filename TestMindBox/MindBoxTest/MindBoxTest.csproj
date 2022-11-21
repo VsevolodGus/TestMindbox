@@ -25,4 +25,8 @@
     <ProjectReference Include="..\TestMindBox\TestMindBox.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Linq\" />
+  </ItemGroup>
+
 </Project>
