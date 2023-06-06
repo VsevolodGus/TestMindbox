@@ -3,39 +3,43 @@
 namespace TestMindBox.SBC;
 internal class Bee
 {
-    public StatusBee status;
-    public char[] memoryMatrix;
-    public double measureOfQuality;
-    public int numberOfVisits;
+    public StatusBee Status;
+    public char[] MemoryMatrix;
+    public double MeasureOfQuality;
+    public int CountrOfVisits;
 
     public Bee(StatusBee status
         , char[] memoryMatrix
         , double measureOfQuality
         , int numberOfVisits)
     {
-        this.status = status;
+        Status = status;
 
-        this.memoryMatrix = new char[memoryMatrix.Length];
-        Array.Copy(memoryMatrix, this.memoryMatrix, this.memoryMatrix.Length);
+        MemoryMatrix = new char[memoryMatrix.Length];
+        Array.Copy(memoryMatrix, MemoryMatrix, MemoryMatrix.Length);
 
-        this.measureOfQuality = measureOfQuality;
-        this.numberOfVisits = numberOfVisits;
+        MeasureOfQuality = measureOfQuality;
+        CountrOfVisits = numberOfVisits;
     }
 
+    /// <summary>
+    /// Переопределил для вывода данных о пчеле
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         var stringBuilder = new StringBuilder();
 
-        stringBuilder.AppendLine("Status = " + this.status);
-        stringBuilder.AppendLine("Status = " + this.status);
+        stringBuilder.AppendLine("Status = " + Status);
+        stringBuilder.AppendLine("Status = " + Status);
         stringBuilder.AppendLine(" Memory = ");
 
-        for (int i = 0; i < this.memoryMatrix.Length - 1; ++i)
-            stringBuilder.Append( this.memoryMatrix[i] + "->");
-        stringBuilder.AppendLine(this.memoryMatrix[this.memoryMatrix.Length - 1].ToString());
+        for (int i = 0; i < MemoryMatrix.Length - 1; ++i)
+            stringBuilder.Append( MemoryMatrix[i] + "->");
+        stringBuilder.AppendLine(MemoryMatrix[MemoryMatrix.Length - 1].ToString());
 
-        stringBuilder.AppendLine(" Quality = " + this.measureOfQuality.ToString("F4"));
-        stringBuilder.AppendLine(" Number visits = " + this.numberOfVisits);
+        stringBuilder.AppendLine(" Quality = " + MeasureOfQuality.ToString("F4"));
+        stringBuilder.AppendLine(" Number visits = " + CountrOfVisits);
 
         return stringBuilder.ToString();;
     }

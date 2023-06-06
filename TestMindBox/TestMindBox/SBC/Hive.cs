@@ -47,7 +47,7 @@ internal class Hive
         this.maxNumberVisits = maxNumberVisits;
         this.maxNumberVisits = maxNumberCycles;
 
-        this.flowersData = new FlowersData(floorsData.cities.Length);
+        this.flowersData = new FlowersData(floorsData.Flowers.Length);
 
         this.bees = new Bee[totalNumberBees];
         this.bestMemoryMatrix = GenerateRandomMemoryMatrix();
@@ -74,13 +74,13 @@ internal class Hive
             int numberOfVisits = 0;
             bees[i] = new Bee(statusBee, randomMemoryMatrix, mq, numberOfVisits);
 
-            if (bees[i].measureOfQuality < bestMeasureOfQuality)
+            if (bees[i].MeasureOfQuality < bestMeasureOfQuality)
             {
-                Array.Copy(bees[i].memoryMatrix, this.bestMemoryMatrix,
-                  bees[i].memoryMatrix.Length);
+                Array.Copy(bees[i].MemoryMatrix, this.bestMemoryMatrix,
+                  bees[i].MemoryMatrix.Length);
             }
 
-            this.bestMeasureOfQuality = bees[i].measureOfQuality;
+            this.bestMeasureOfQuality = bees[i].MeasureOfQuality;
 
 
         }
@@ -88,9 +88,9 @@ internal class Hive
 
     public char[] GenerateRandomMemoryMatrix()
     {
-        var countFlowers = this.flowersData.cities.Length;
+        var countFlowers = this.flowersData.Flowers.Length;
         var result = new char[countFlowers];
-        Array.Copy(flowersData.cities, result, countFlowers);
+        Array.Copy(flowersData.Flowers, result, countFlowers);
 
         for (var i = 0; i < countFlowers; i++)
         {
@@ -162,11 +162,11 @@ internal class Hive
         {
             for (int i = 0; i < totalNumberBees; ++i)
             {
-                if (this.bees[i].status == StatusBee.Active)
+                if (this.bees[i].Status == StatusBee.Active)
                     ProcessActiveBee(i);
-                else if (this.bees[i].status == StatusBee.Scout)
+                else if (this.bees[i].Status == StatusBee.Scout)
                     ProcessScoutBee(i);
-                else if (this.bees[i].status == StatusBee.InActive)
+                else if (this.bees[i].Status == StatusBee.InActive)
                     ProcessInactiveBee(i);
             }
             ++cycle;
@@ -181,26 +181,26 @@ internal class Hive
 
     private void ProcessActiveBee(int i)
     {
-        char[] neighbor = GenerateNeighborMemoryMatrix(bees[i].memoryMatrix);
+        char[] neighbor = GenerateNeighborMemoryMatrix(bees[i].MemoryMatrix);
         double neighborQuality = MeasureOfQuality(neighbor);
         double prob = random.NextDouble();
         bool memoryWasUpdated = false;
         bool numberOfVisitsOverLimit = false;
 
         
-        if (neighborQuality < bees[i].measureOfQuality) // better
+        if (neighborQuality < bees[i].MeasureOfQuality) // better
         { 
             if (prob < probMistake) // mistake
             { 
-                ++bees[i].numberOfVisits;
-                if (bees[i].numberOfVisits > maxNumberVisits)
+                ++bees[i].CountrOfVisits;
+                if (bees[i].CountrOfVisits > maxNumberVisits)
                     numberOfVisitsOverLimit = true;
             }
             else // No mistake
             { 
-                Array.Copy(neighbor, bees[i].memoryMatrix, neighbor.Length);
-                bees[i].measureOfQuality = neighborQuality;
-                bees[i].numberOfVisits = 0;
+                Array.Copy(neighbor, bees[i].MemoryMatrix, neighbor.Length);
+                bees[i].MeasureOfQuality = neighborQuality;
+                bees[i].CountrOfVisits = 0;
                 memoryWasUpdated = true;
             }
         }
@@ -208,34 +208,34 @@ internal class Hive
         { 
             if (prob < probMistake) // Mistake
             { 
-                Array.Copy(neighbor, bees[i].memoryMatrix, neighbor.Length);
-                bees[i].measureOfQuality = neighborQuality;
-                bees[i].numberOfVisits = 0;
+                Array.Copy(neighbor, bees[i].MemoryMatrix, neighbor.Length);
+                bees[i].MeasureOfQuality = neighborQuality;
+                bees[i].CountrOfVisits = 0;
                 memoryWasUpdated = true;
             }
             else // No mistake
             { 
-                ++bees[i].numberOfVisits;
-                if (bees[i].numberOfVisits > maxNumberVisits)
+                ++bees[i].CountrOfVisits;
+                if (bees[i].CountrOfVisits > maxNumberVisits)
                     numberOfVisitsOverLimit = true;
             }
         }
 
         if (numberOfVisitsOverLimit)
         {
-            bees[i].status = StatusBee.InActive;
-            bees[i].numberOfVisits = 0;
+            bees[i].Status = StatusBee.InActive;
+            bees[i].CountrOfVisits = 0;
             int x = random.Next(numberInactive);
-            bees[indexesOfInactiveBees[x]].status = StatusBee.Active;
+            bees[indexesOfInactiveBees[x]].Status = StatusBee.Active;
             indexesOfInactiveBees[x] = i;
         }
         else if (memoryWasUpdated)
         {
-            if (bees[i].measureOfQuality < this.bestMeasureOfQuality)
+            if (bees[i].MeasureOfQuality < this.bestMeasureOfQuality)
             {
-                Array.Copy(bees[i].memoryMatrix, this.bestMemoryMatrix,
-                  bees[i].memoryMatrix.Length);
-                this.bestMeasureOfQuality = bees[i].measureOfQuality;
+                Array.Copy(bees[i].MemoryMatrix, this.bestMemoryMatrix,
+                  bees[i].MemoryMatrix.Length);
+                this.bestMeasureOfQuality = bees[i].MeasureOfQuality;
             }
             DoWaggleDance(i);
         }
@@ -248,17 +248,17 @@ internal class Hive
         char[] randomFoodSource = GenerateRandomMemoryMatrix();
         double randomFoodSourceQuality = MeasureOfQuality(randomFoodSource);
 
-        if (randomFoodSourceQuality >= bees[i].measureOfQuality)
+        if (randomFoodSourceQuality >= bees[i].MeasureOfQuality)
             return;
 
-        Array.Copy(randomFoodSource, bees[i].memoryMatrix, randomFoodSource.Length);
-        bees[i].measureOfQuality = randomFoodSourceQuality;
+        Array.Copy(randomFoodSource, bees[i].MemoryMatrix, randomFoodSource.Length);
+        bees[i].MeasureOfQuality = randomFoodSourceQuality;
 
-        if (bees[i].measureOfQuality >= bestMeasureOfQuality)
+        if (bees[i].MeasureOfQuality >= bestMeasureOfQuality)
             return;
 
-        Array.Copy(bees[i].memoryMatrix, this.bestMemoryMatrix, bees[i].memoryMatrix.Length);
-        this.bestMeasureOfQuality = bees[i].measureOfQuality;
+        Array.Copy(bees[i].MemoryMatrix, this.bestMemoryMatrix, bees[i].MemoryMatrix.Length);
+        this.bestMeasureOfQuality = bees[i].MeasureOfQuality;
 
         DoWaggleDance(i);
     }
@@ -268,15 +268,15 @@ internal class Hive
         for (int ii = 0; ii < numberInactive; ++ii)
         {
             int indexInActiveBee = indexesOfInactiveBees[ii];
-            if (bees[i].measureOfQuality >= bees[indexInActiveBee].measureOfQuality)
+            if (bees[i].MeasureOfQuality >= bees[indexInActiveBee].MeasureOfQuality)
                 continue;
 
             double p = random.NextDouble();
             if (this.probPersuasion > p)
                 continue;
 
-            Array.Copy(bees[i].memoryMatrix, bees[indexInActiveBee].memoryMatrix, bees[i].memoryMatrix.Length);
-            bees[indexInActiveBee].measureOfQuality = bees[i].measureOfQuality;
+            Array.Copy(bees[i].MemoryMatrix, bees[indexInActiveBee].MemoryMatrix, bees[i].MemoryMatrix.Length);
+            bees[indexInActiveBee].MeasureOfQuality = bees[i].MeasureOfQuality;
         }
     }
 

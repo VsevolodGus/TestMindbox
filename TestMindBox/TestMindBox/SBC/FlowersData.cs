@@ -3,14 +3,14 @@
 namespace TestMindBox.SBC;
 internal class FlowersData
 {
-    public char[] cities;
+    public char[] Flowers;
 
-    public FlowersData(int numberCities)
+    public FlowersData(int countFlowers)
     {
-        this.cities = new char[numberCities];
-        this.cities[0] = 'A';
-        for (int i = 1; i < this.cities.Length; i++)
-            this.cities[i] = (char)(this.cities[i - 1] + 1);
+        Flowers = new char[countFlowers];
+        Flowers[0] = 'A';
+        for (int i = 1; i < Flowers.Length; i++)
+            Flowers[i] = (char)(Flowers[i - 1] + 1);
     }
 
     /// <summary>
@@ -25,13 +25,13 @@ internal class FlowersData
             : 1.5 * (firstCity - secondCity);
 
     public double ShortestPathLength()
-        => 1.0 * (this.cities.Length - 1);
+        => 1.0 * (Flowers.Length - 1);
     
 
     public long NumberOfPossiblePaths()
     {
         long answer = 1;
-        for (int i = 1; i <= this.cities.Length; ++i)
+        for (int i = 1; i <= Flowers.Length; ++i)
             checked { answer *= i; }
 
         return answer;
@@ -41,7 +41,7 @@ internal class FlowersData
     {
         var stringBuilder = new StringBuilder("Cities: ");
 
-        foreach(var city in this.cities)
+        foreach(var city in Flowers)
             stringBuilder.Append(city + " ");
 
         return stringBuilder.ToString();
