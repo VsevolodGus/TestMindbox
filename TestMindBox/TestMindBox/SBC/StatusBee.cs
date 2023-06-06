@@ -1,7 +1,7 @@
 ﻿namespace TestMindBox.SBC;
 internal enum StatusBee
 {
-    Active = 0,
-    InActive = 1,
+    InActive = 0,
+    Active = 1,
     Scout = 2,
 }
