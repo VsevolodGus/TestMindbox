@@ -1,69 +1,75 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace TestMindBox.SBC;
 internal class Hive
 {
-    static Random random;
+    private readonly static Random random = new Random(0);
 
-    public FlowersData flowersData;
+    private readonly FlowersData _flowersData;
 
     /// <summary>
     /// каждая пчела представляет потенциальное решение
     /// чем больше пчел в улье, тем лучше
     /// Однако с ростом популяции пчел производительность программы уменьшается.
     /// </summary>
-    public readonly int totalNumberBees;
-    public readonly int numberScout;
-    public readonly int numberActive;
-    public readonly int numberInactive;
+    private readonly int _totalNumberBees;
+    private readonly int _countScout;
+    private readonly int _countActive;
+    private readonly int _countInactive;
 
-    public readonly int maxNumberCycles;
-    public readonly int maxNumberVisits;
+    /// <summary>
+    /// Кол-во циклов, чтобы ограничить кол-во расчетов
+    /// Ищем приближенное к идеалу решение, а не идеальное
+    /// lim = (идеал)
+    /// но с каждой итерацией lim(n -> беск)(дельта оптимизации / затраченные ресурсы)  = 0
+    /// </summary>
+    private readonly int _maxCountCycles;
+    /// <summary>
+    /// Может определяться другими условиями (допустим пыльцы на цветке кончилась)
+    /// </summary>
+    private readonly int _maxCountVisits;
 
-    public readonly double probPersuasion = 0.90;
-    public readonly double probMistake = 0.01;
+    private readonly double _probabilityPersuasion = 0.90;
+    private readonly double _probabilityMistake = 0.01;
 
-    public Bee[] bees;
-    public char[] bestMemoryMatrix;
-    public double bestMeasureOfQuality;
-    public int[] indexesOfInactiveBees;
+    private readonly Bee[] _bees;
+    private readonly int[] _indexesOfInactiveBees;
 
-    public Hive(int numberInactive,
-  int numberActive, int numberScout, int maxNumberVisits,
-  int maxNumberCycles, FlowersData floorsData)
+    private char[] _bestMemoryMatrix;
+    private double _bestMeasureOfQuality;
+
+    public Hive(int countInactive
+        , int countActive
+        , int numberScout
+        , int maxCountVisits
+        , int maxCountCycles
+        , FlowersData flowersData)
     {
+        _totalNumberBees = countActive + countInactive + numberScout;
+        _countScout = numberScout;
+        _countActive = countActive;
+        _countInactive = countInactive;
 
-        random = new Random(0);
+        _maxCountVisits = maxCountVisits;
+        _maxCountVisits = maxCountCycles;
 
-        this.totalNumberBees = numberActive + numberInactive + numberScout;
-        this.numberScout = numberScout;
-        this.numberActive = numberActive;
-        this.numberInactive = numberInactive;
+        _flowersData = new FlowersData(flowersData.Flowers.Length);
 
-        this.maxNumberVisits = maxNumberVisits;
-        this.maxNumberVisits = maxNumberCycles;
+        _bees = new Bee[_totalNumberBees];
+        _bestMemoryMatrix = GenerateRandomMemoryMatrix();
+        _bestMeasureOfQuality = MeasureOfQuality(_bestMemoryMatrix);
 
-        this.flowersData = new FlowersData(floorsData.Flowers.Length);
+        _indexesOfInactiveBees = new int[_countInactive];
 
-        this.bees = new Bee[totalNumberBees];
-        this.bestMemoryMatrix = GenerateRandomMemoryMatrix();
-        this.bestMeasureOfQuality = MeasureOfQuality(this.bestMemoryMatrix);
-
-        this.indexesOfInactiveBees = new int[this.numberInactive];
-
-        for (var i = 0; i < this.totalNumberBees; i++)
+        for (var i = 0; i < _totalNumberBees; i++)
         {
             StatusBee statusBee;
-            if (i < this.numberInactive)
+            if (i < _countInactive)
             {
                 statusBee = StatusBee.Active;
-                indexesOfInactiveBees[i] = i;
+                _indexesOfInactiveBees[i] = i;
             }
-            else if (i < numberScout + numberInactive)
+            else if (i < _countScout + _countInactive)
                 statusBee = StatusBee.Scout;
             else
                 statusBee = StatusBee.Active;
@@ -72,59 +78,11 @@ internal class Hive
             char[] randomMemoryMatrix = GenerateRandomMemoryMatrix();
             double mq = MeasureOfQuality(randomMemoryMatrix);
             int numberOfVisits = 0;
-            bees[i] = new Bee(statusBee, randomMemoryMatrix, mq, numberOfVisits);
+            _bees[i] = new Bee(statusBee, randomMemoryMatrix, mq, numberOfVisits);
 
-            if (bees[i].MeasureOfQuality < bestMeasureOfQuality)
-            {
-                Array.Copy(bees[i].MemoryMatrix, this.bestMemoryMatrix,
-                  bees[i].MemoryMatrix.Length);
-            }
-
-            this.bestMeasureOfQuality = bees[i].MeasureOfQuality;
-
-
+            if (_bees[i].MeasureOfQuality < _bestMeasureOfQuality)
+                CopyBestResult(_bees[i]);
         }
-    }
-
-    public char[] GenerateRandomMemoryMatrix()
-    {
-        var countFlowers = this.flowersData.Flowers.Length;
-        var result = new char[countFlowers];
-        Array.Copy(flowersData.Flowers, result, countFlowers);
-
-        for (var i = 0; i < countFlowers; i++)
-        {
-            var r = random.Next(1, countFlowers);
-            Swap(ref result[r], ref result[i]);
-        }
-
-        return result;
-    }
-
-    private void Swap<T>(ref T value1, ref T value2)
-    {
-        (value2, value1) = (value1, value2);
-    }
-
-    /// <summary>
-    /// По сути это метод вычисления веса варианта
-    /// По всем точка выбранного маршрута в графе
-    /// Наиболее тяжелый метод в алгоритме SBC, обратить внимание на это
-    /// </summary>
-    /// <param name="memoryMatrix">последовательность маршрута</param>
-    /// <returns>вес маршрута</returns>
-    public double MeasureOfQuality(char[] memoryMatrix)
-    {
-        var result = 0.0;
-
-        for (var i = 0; i < memoryMatrix.Length - 1; i++)
-        {
-            var char1 = memoryMatrix[i];
-            var char2 = memoryMatrix[i + 1];
-            result += flowersData.Distance(char1, char2);
-        }
-
-        return result;
     }
 
     public char[] GenerateNeighborMemoryMatrix(char[] memoryMatrix)
@@ -146,10 +104,9 @@ internal class Hive
 
     public void Solve(bool doProgressBar)
     {
-        bool pb = doProgressBar;
         int numberOfSymbolsToPrint = 10;
-        int increment = this.maxNumberCycles / numberOfSymbolsToPrint;
-        if (pb)
+        int increment = _maxCountCycles / numberOfSymbolsToPrint;
+        if (doProgressBar)
         {
             Console.WriteLine("\nEntering SBC Traveling Salesman Problem algorithm main processing loop\n");
             Console.WriteLine("Progress: |==========|");
@@ -158,89 +115,86 @@ internal class Hive
             
         int cycle = 0;
 
-        while (cycle < this.maxNumberCycles)
+        while (cycle < _maxCountCycles)
         {
-            for (int i = 0; i < totalNumberBees; ++i)
+            for (int i = 0; i < _totalNumberBees; ++i)
             {
-                if (this.bees[i].Status == StatusBee.Active)
+                if (_bees[i].Status == StatusBee.Active)
                     ProcessActiveBee(i);
-                else if (this.bees[i].Status == StatusBee.Scout)
+                else if (_bees[i].Status == StatusBee.Scout)
                     ProcessScoutBee(i);
-                else if (this.bees[i].Status == StatusBee.InActive)
+                else if (_bees[i].Status == StatusBee.InActive)
                     ProcessInactiveBee(i);
             }
             ++cycle;
 
-            if (pb && cycle % increment == 0)
+            if (doProgressBar && cycle % increment == 0)
                 Console.Write("^");
         }
 
-        if (pb) 
+        if (doProgressBar) 
             Console.WriteLine("");
     }
 
     private void ProcessActiveBee(int i)
     {
-        char[] neighbor = GenerateNeighborMemoryMatrix(bees[i].MemoryMatrix);
+        char[] neighbor = GenerateNeighborMemoryMatrix(_bees[i].MemoryMatrix);
         double neighborQuality = MeasureOfQuality(neighbor);
-        double prob = random.NextDouble();
+        double probability = random.NextDouble();
         bool memoryWasUpdated = false;
         bool numberOfVisitsOverLimit = false;
 
         
-        if (neighborQuality < bees[i].MeasureOfQuality) // better
+        if (neighborQuality < _bees[i].MeasureOfQuality) // better
         { 
-            if (prob < probMistake) // mistake
+            if (probability < _probabilityMistake) // mistake
             { 
-                ++bees[i].CountrOfVisits;
-                if (bees[i].CountrOfVisits > maxNumberVisits)
+                ++_bees[i].CountrOfVisits;
+                if (_bees[i].CountrOfVisits > _maxCountVisits)
                     numberOfVisitsOverLimit = true;
             }
             else // No mistake
             { 
-                Array.Copy(neighbor, bees[i].MemoryMatrix, neighbor.Length);
-                bees[i].MeasureOfQuality = neighborQuality;
-                bees[i].CountrOfVisits = 0;
+                Array.Copy(neighbor, _bees[i].MemoryMatrix, neighbor.Length);
+                _bees[i].MeasureOfQuality = neighborQuality;
+                _bees[i].CountrOfVisits = 0;
                 memoryWasUpdated = true;
             }
         }
         else // Did not find better neighbor
         { 
-            if (prob < probMistake) // Mistake
+            if (probability < _probabilityMistake) // Mistake
             { 
-                Array.Copy(neighbor, bees[i].MemoryMatrix, neighbor.Length);
-                bees[i].MeasureOfQuality = neighborQuality;
-                bees[i].CountrOfVisits = 0;
+                Array.Copy(neighbor, _bees[i].MemoryMatrix, neighbor.Length);
+                _bees[i].MeasureOfQuality = neighborQuality;
+                _bees[i].CountrOfVisits = 0;
                 memoryWasUpdated = true;
             }
             else // No mistake
             { 
-                ++bees[i].CountrOfVisits;
-                if (bees[i].CountrOfVisits > maxNumberVisits)
+                ++_bees[i].CountrOfVisits;
+                if (_bees[i].CountrOfVisits > _maxCountVisits)
                     numberOfVisitsOverLimit = true;
             }
         }
 
+
+
         if (numberOfVisitsOverLimit)
         {
-            bees[i].Status = StatusBee.InActive;
-            bees[i].CountrOfVisits = 0;
-            int x = random.Next(numberInactive);
-            bees[indexesOfInactiveBees[x]].Status = StatusBee.Active;
-            indexesOfInactiveBees[x] = i;
+            _bees[i].Status = StatusBee.InActive;
+            _bees[i].CountrOfVisits = 0;
+            int x = random.Next(_countInactive);
+            _bees[_indexesOfInactiveBees[x]].Status = StatusBee.Active;
+            _indexesOfInactiveBees[x] = i;
         }
         else if (memoryWasUpdated)
         {
-            if (bees[i].MeasureOfQuality < this.bestMeasureOfQuality)
-            {
-                Array.Copy(bees[i].MemoryMatrix, this.bestMemoryMatrix,
-                  bees[i].MemoryMatrix.Length);
-                this.bestMeasureOfQuality = bees[i].MeasureOfQuality;
-            }
+            if (_bees[i].MeasureOfQuality < _bestMeasureOfQuality)
+                CopyBestResult(_bees[i]);
+
             DoWaggleDance(i);
         }
-        else
-            return;   
     }
 
     private void ProcessScoutBee(int i)
@@ -248,40 +202,89 @@ internal class Hive
         char[] randomFoodSource = GenerateRandomMemoryMatrix();
         double randomFoodSourceQuality = MeasureOfQuality(randomFoodSource);
 
-        if (randomFoodSourceQuality >= bees[i].MeasureOfQuality)
+        if (randomFoodSourceQuality >= _bees[i].MeasureOfQuality)
             return;
 
-        Array.Copy(randomFoodSource, bees[i].MemoryMatrix, randomFoodSource.Length);
-        bees[i].MeasureOfQuality = randomFoodSourceQuality;
+        Array.Copy(randomFoodSource, _bees[i].MemoryMatrix, randomFoodSource.Length);
+        _bees[i].MeasureOfQuality = randomFoodSourceQuality;
 
-        if (bees[i].MeasureOfQuality >= bestMeasureOfQuality)
+        if (_bees[i].MeasureOfQuality >= _bestMeasureOfQuality)
             return;
 
-        Array.Copy(bees[i].MemoryMatrix, this.bestMemoryMatrix, bees[i].MemoryMatrix.Length);
-        this.bestMeasureOfQuality = bees[i].MeasureOfQuality;
+        CopyBestResult(_bees[i]);
 
         DoWaggleDance(i);
     }
 
     private void DoWaggleDance(int i)
     {
-        for (int ii = 0; ii < numberInactive; ++ii)
+        for (int ii = 0; ii < _countInactive; ++ii)
         {
-            int indexInActiveBee = indexesOfInactiveBees[ii];
-            if (bees[i].MeasureOfQuality >= bees[indexInActiveBee].MeasureOfQuality)
+            int indexInActiveBee = _indexesOfInactiveBees[ii];
+            if (_bees[i].MeasureOfQuality >= _bees[indexInActiveBee].MeasureOfQuality)
                 continue;
 
             double p = random.NextDouble();
-            if (this.probPersuasion > p)
+            if (_probabilityPersuasion > p)
                 continue;
 
-            Array.Copy(bees[i].MemoryMatrix, bees[indexInActiveBee].MemoryMatrix, bees[i].MemoryMatrix.Length);
-            bees[indexInActiveBee].MeasureOfQuality = bees[i].MeasureOfQuality;
+            Array.Copy(_bees[i].MemoryMatrix, _bees[indexInActiveBee].MemoryMatrix, _bees[i].MemoryMatrix.Length);
+            _bees[indexInActiveBee].MeasureOfQuality = _bees[i].MeasureOfQuality;
         }
     }
+
+    /// <summary>
+    /// По сути это метод вычисления веса варианта
+    /// По всем точка выбранного маршрута в графе
+    /// Наиболее тяжелый метод в алгоритме SBC, обратить внимание на это
+    /// </summary>
+    /// <param name="memoryMatrix">последовательность маршрута</param>
+    /// <returns>вес маршрута</returns>
+    public double MeasureOfQuality(char[] memoryMatrix)
+    {
+        var result = 0.0;
+
+        for (var i = 0; i < memoryMatrix.Length - 1; i++)
+        {
+            var char1 = memoryMatrix[i];
+            var char2 = memoryMatrix[i + 1];
+            result += _flowersData.Distance(char1, char2);
+        }
+
+        return result;
+    }
+
+    private char[] GenerateRandomMemoryMatrix()
+    {
+        var countFlowers = _flowersData.Flowers.Length;
+        var result = new char[countFlowers];
+        Array.Copy(_flowersData.Flowers, result, countFlowers);
+
+        for (var i = 0; i < countFlowers; i++)
+        {
+            var r = random.Next(1, countFlowers);
+            Swap(ref result[r], ref result[i]);
+        }
+
+        return result;
+    }
+
+
+    private void CopyBestResult(Bee bee)
+    {
+        Array.Copy(bee.MemoryMatrix, _bestMemoryMatrix, bee.MemoryMatrix.Length);
+        _bestMeasureOfQuality = bee.MeasureOfQuality;
+    }
+
+
 
     private void ProcessInactiveBee(int i)
     {
         return;
+    }
+
+    private void Swap<T>(ref T value1, ref T value2)
+    {
+        (value2, value1) = (value1, value2);
     }
 }
