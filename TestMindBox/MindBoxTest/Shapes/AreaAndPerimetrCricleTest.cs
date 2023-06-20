@@ -1,5 +1,4 @@
 ﻿using TestMindBox.Shapes;
-using TestMindBox;
 
 namespace MindBoxTest;
 

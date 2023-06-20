@@ -1,4 +1,4 @@
-﻿namespace TestMindBox;
+﻿namespace TestMindBox.Shapes;
 
 public class DataShape
 {
