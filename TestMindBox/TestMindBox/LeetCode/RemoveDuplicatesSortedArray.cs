@@ -24,7 +24,7 @@ public class RemoveDuplicatesSortedArray
 {
     public int RemoveDuplicates(int[] nums)
     {
-        var index = 0;
+        var index = 1;
 
         foreach (var item in nums) 
         {
