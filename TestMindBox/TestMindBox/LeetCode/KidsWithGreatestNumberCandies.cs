@@ -6,15 +6,10 @@ public class KidsWithGreatestNumberCandies
     {
         var result = new bool[candies.Length];
 
-        for(int i = 0; i< candies.Length; i++) 
-        {
-            candies[i] += extraCandies;
+        var max = candies.Max();
 
-            var max = candies.Max();
-            result[i] = candies[i] == max;
-
-            candies[i] -= extraCandies;
-        }
+        for(int i = 0; i< candies.Length; i++)
+            result[i] = candies[i] + extraCandies >= max;
 
         return result;
     }
