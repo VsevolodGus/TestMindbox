@@ -1,4 +1,6 @@
-﻿namespace TestMindBox.LeetCode;
+﻿using System.Text;
+
+namespace TestMindBox.LeetCode;
 
 /// <summary>
 /// https://leetcode.com/problems/reverse-words-in-a-string/?envType=study-plan-v2&envId=top-interview-150
@@ -7,10 +9,16 @@ public class ReverseWordsInStringTask
 {
     public string ReverseWords(string s)
     {
+        //var result = new StringBuilder();
         var words = s.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        //TODO можно ускорить с помощью stringBuilder в цикле, чтобы реверсить через индексы, а не весь массив
         return string.Join(' ', words.Reverse());
+        //// 
+        //for (int i = words.Length - 1; i > -1; i--)
+        //{
+        //    result.Append(words[i]).Append(' ');
+        //}
+
+        //return result.Remove(result.Length-1, 1).ToString();
 
         #region Это решение лучше по памяти, но хуже по времени и не читаемо
         // Решение не мое

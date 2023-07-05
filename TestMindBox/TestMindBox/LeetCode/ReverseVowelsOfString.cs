@@ -13,14 +13,17 @@ public class ReverseVowelsOfString
     {
         var str = new StringBuilder(s);
 
-        var vowels = s.Where(IsVowels).Reverse().ToArray();
-
-        int indexVowels = 0;
+        var stack = new Stack<char>();
         for (int i = 0; i < str.Length; i++)
         {
             if (IsVowels(str[i]))
-                str[i] = vowels[indexVowels++];
+                stack.Push(str[i]);
+        }
 
+        for (int i = 0; i < str.Length; i++)
+        {
+            if (IsVowels(str[i]))
+                str[i] = stack.Pop();
         }
 
         return str.ToString();
