@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace TestMindBox.LeetCode;
+﻿namespace TestMindBox.LeetCode;
 
 /// <summary>
 /// https://leetcode.com/problems/reverse-words-in-a-string/?envType=study-plan-v2&envId=top-interview-150
@@ -9,9 +7,11 @@ public class ReverseWordsInStringTask
 {
     public string ReverseWords(string s)
     {
-        //var result = new StringBuilder();
         var words = s.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return string.Join(' ', words.Reverse());
+
+        //var result = new StringBuilder();
+
         //// 
         //for (int i = words.Length - 1; i > -1; i--)
         //{
