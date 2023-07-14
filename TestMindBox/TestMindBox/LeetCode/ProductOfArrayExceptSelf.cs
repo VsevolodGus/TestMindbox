@@ -24,7 +24,7 @@ public class ProductOfArrayExceptSelf
                 if (nums[i] != 0)
                     a *= nums[i];
                 else
-                    indexZero = i
+                    indexZero = i;
 
             result[indexZero] = a;
         }
