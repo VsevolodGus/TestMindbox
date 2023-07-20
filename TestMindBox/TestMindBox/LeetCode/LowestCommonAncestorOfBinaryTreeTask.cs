@@ -1,17 +1,10 @@
-﻿using TestMindBox.Trees;
+﻿using TestMindBox.LeetCode.Models;
 
 namespace TestMindBox.LeetCode;
-public class TreeNode
-{
-    public int val;
-    public TreeNode left;
-    public TreeNode right;
-    public TreeNode(int x) 
-    { 
-        val = x; 
-    }
-}
 
+/// <summary>
+/// https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/?envType=study-plan-v2&envId=leetcode-75
+/// </summary>
 public class LowestCommonAncestorOfBinaryTreeTask
 {
     public TreeNode LowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q)
@@ -22,8 +15,7 @@ public class LowestCommonAncestorOfBinaryTreeTask
         var parentsQ = new List<TreeNode>();
         FindNodeRec(root, q, parentsQ);
         
-        var asd = parentsP.Intersect(parentsQ).ToArray();
-        return asd.LastOrDefault();
+        return parentsP.Intersect(parentsQ).LastOrDefault();
     }
 
     /// <summary>
