@@ -1,4 +1,5 @@
 ﻿using TestMindBox.LeetCode;
+using TestMindBox.LeetCode.Models;
 
 namespace MindBoxTest.LeetCode;
 public class LowestCommonAncestorOfBinaryTreeTest
